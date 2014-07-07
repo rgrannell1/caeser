@@ -78,6 +78,49 @@ const yieldRandomCipherText = function (shift) {
 
 
 
+
+const freqOf = function (str) {
+
+	const counts = ascii
+		.split('')
+		.map(function (toTabulate) {
+			return str
+				.split('')
+				.filter(function (char) {
+					return char === toTabulate
+				})
+				.length
+		})
+
+	const total = counts.reduce(function (a, b) {return a + b})
+
+	return counts.map(function (count) {
+		return count / total
+	})
+}
+const log2 = function (num) {
+	return Math.log(num) / Math.LN10
+}
+
+
+
+
+
+
+const shannonEntropy = function (freqs) {
+	return freqs
+		.filter(function (freq) {
+			return freq > 0
+		})
+		.map(function (freq) {
+			return freq * log2(freq)
+		})
+		.reduce(function (a, b) {return a + b}, 0) * -1
+}
+
+
+
+
 const oracles = {
 	dumn: function (cypherTexts) {
 		/*
@@ -91,15 +134,20 @@ const oracles = {
 
 	},
 	distribution: function (cypherTexts) {
+		/*
+			get the frequencies of each character in the cypher-texts.
+
+
+		*/
 
 		return cypherTexts.map(function (text) {
-			return false
+
+			const entropy = shannonEntropy(freqOf(text))
+			return entropy < 1.5
 		})
 
 	}
 }
-
-
 
 
 
@@ -116,8 +164,11 @@ const advantage = function (iters, oracles) {
 
 	for (var ith = 0; ith < iters; ith++) {
 
+		var shift = Math.floor(Math.random() * 1000)
+
 		var emitter = emitters[Math.floor(Math.random() * emitters.length)]
-		cypherTexts.push(emitter.emit())
+		cypherTexts.push(emitter.emit(shift))
+
 		whichUsed.push(emitter.which)
 	}
 
