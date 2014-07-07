@@ -81,11 +81,14 @@ const yieldRandomCipherText = function (shift) {
 
 const freqOf = function (str) {
 
+	if (toString.call(str) === '[object String]') {
+		str = str.split('')
+	}
+
 	const counts = ascii
 		.split('')
 		.map(function (toTabulate) {
 			return str
-				.split('')
 				.filter(function (char) {
 					return char === toTabulate
 				})
@@ -98,6 +101,11 @@ const freqOf = function (str) {
 		return count / total
 	})
 }
+
+
+
+
+
 const log2 = function (num) {
 	return Math.log(num) / Math.LN10
 }
@@ -118,48 +126,6 @@ const shannonEntropy = function (freqs) {
 		.reduce(function (a, b) {return a + b}, 0) * -1
 }
 
-
-
-
-const oracles = {
-	optimist: function (cypherTexts) {
-		return cypherTexts.map(function (_) {return true})
-	},
-	pessamist: function (cypherTexts) {
-		return cypherTexts.map(function (_) {return false})
-	},
-
-	dumn: function (cypherTexts) {
-		/*
-			dumb just guesses randomly.
-			expected value of 1/2
-		*/
-
-		return cypherTexts.map(function (text) {
-			return Math.random() >= 0.5
-		})
-
-	},
-
-	distribution: function (cypherTexts) {
-		/*
-			get the shannon entropy of the cypher-texts;
-
-			there should be uniform character distribution in
-			the random plaintexts, but not the meaningful plaintexts.
-
-		*/
-
-		return cypherTexts.map(function (text) {
-
-			const entropy = shannonEntropy(freqOf(text))
-
-			// rather arbitrary bounds.
-			return entropy < 1.35 || entropy < 1.1
-		})
-
-	}
-}
 
 
 
@@ -199,12 +165,83 @@ const advantage = function (iters, oracles) {
 			return [key, (score / iters) * 100]
 		})
 
-	console.log(percentCorrect)
+	var out = {}
+	percentCorrect.forEach(function (result) {
+		out[result[0]] = result[1]
+	})
+
+	return out
+}
+
+
+
+
+const oracles = {
+	optimist: function (cypherTexts) {
+		return cypherTexts.map(function (_) {return true})
+	},
+	pessamist: function (cypherTexts) {
+		return cypherTexts.map(function (_) {return false})
+	},
+
+	dumn: function (cypherTexts) {
+		/*
+			dumb just guesses randomly.
+			expected value of 1/2
+		*/
+
+		return cypherTexts.map(function (text) {
+			return Math.random() >= 0.5
+		})
+
+	},
+
+	distribution: ( function () {
+		/*
+			get the shannon entropy of the cypher-texts;
+
+			there should be uniform character distribution in
+			the random plaintexts, but not the meaningful plaintexts.
+
+			Use brute-force search to find ideal upper and lower bounds on entropy.
+		*/
+
+		var _testBounds = []
+
+		for (var ith = 0; ith < 20; ith++) {
+			for (var jth = 0; jth < 20; jth++) {
+				_testBounds.push([ith / 4, jth / 4])
+			}
+		}
+
+		const makeAdversary = function (pair) {
+			return function (cypherTexts) {
+
+				return cypherTexts.map(function (text) {
+					const entropy = shannonEntropy(freqOf(text))
+					return pair[0] > entropy && entropy < pair[1]
+				})
+			}
+		}
+
+		const adversaries   = _testBounds.map(makeAdversary)
+		const advantages    = advantage(300, adversaries)
+
+		const bestAdvantage = Object.keys(advantages)
+			.reduce(function (acc, current) {
+				return advantages[current] > acc[1]?
+					[current, advantages[current]]:
+					acc
+			}, ['will be dropped', -Infinity])
+
+		return adversaries[bestAdvantage[0]]
+
+	} )()
+
 }
 
 
 
 
 
-
-advantage(10000, oracles)
+console.log(advantage(10000, oracles))
