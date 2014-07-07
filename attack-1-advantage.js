@@ -153,6 +153,8 @@ const oracles = {
 		return cypherTexts.map(function (text) {
 
 			const entropy = shannonEntropy(freqOf(text))
+
+			// rather arbitrary bounds.
 			return entropy < 1.35 || entropy < 1.1
 		})
 
