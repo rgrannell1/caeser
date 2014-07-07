@@ -78,21 +78,65 @@ const yieldRandomCipherText = function (shift) {
 
 
 
-
 const oracles = {
-	dumn: function (cypherText) {
-		return Math.random() >= 0.5
+	dumn: function (cypherTexts) {
+		/*
+			dumb just guesses randomly.
+			expected value of 1/2
+		*/
+
+		return cypherTexts.map(function (text) {
+			return Math.random() >= 0.5
+		})
+
 	},
-	distribution: function (cypherText) {
+	distribution: function (cypherTexts) {
+
+		return cypherTexts.map(function (text) {
+			return false
+		})
 
 	}
 }
 
 
-console.log( yieldPlainText() )
 
-const advantage = function (iterations, oracles) {
 
+
+
+const advantage = function (iters, oracles) {
+
+	var cypherTexts = []
+	var whichUsed   = []
+
+	const emitters = [
+		{which: true,  emit: yieldCipherText},
+		{which: false, emit: yieldRandomCipherText}
+	]
+
+	for (var ith = 0; ith < iters; ith++) {
+
+		var emitter = emitters[Math.floor(Math.random() * emitters.length)]
+		cypherTexts.push(emitter.emit())
+		whichUsed.push(emitter.which)
+	}
+
+	const percentCorrect = Object.keys(oracles)
+		.map(function (key) {
+
+			const guesses = oracles[key](cypherTexts)
+
+			const score = Object.keys(guesses)
+				.map(function (ith) {
+					ith = parseInt(ith)
+					return guesses[ith] === whichUsed[ith]? 1: 0
+				})
+				.reduce(function (a, b) {return a + b})
+
+			return (score / iters) * 100
+		})
+
+	console.log(percentCorrect)
 }
 
 advantage(10000, oracles)
