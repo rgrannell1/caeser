@@ -2,6 +2,15 @@
 Caeser
 =================================================================
 
+This repository contains an implementation of the weak, *only-for-educational-purposes-never-actual-cryptography* Caeser's cypher algorithm, as well as some basic attacks on it written in node.js and some data munging code in R.
+
+You can get this repo using
+
+```bash
+git clone https://github.com/rgrannell1/caeser.git
+cd caeser
+```
+
 ### Description
 
 Caeser's Cypher (CC) is a simple single-letter substitution cypher. The cypher maps each letter in the domain alphabet `A_i`
@@ -40,8 +49,8 @@ insecure, but there are several others that are fun to exploit.
 
 ### Decrypting the Message
 
-By finding the pre-image and image of any character in any plaintext/Cyphertext pair we can completely break CC; CC cyclically
-permutes `A_i` to` A_j`, and for any cyclic permutation `a_i = a_(j+c)` implies `A_i = A_(j+c)`, and the shift `c` is `i-j`.
+By finding the pre-image and image of any character in any plaintext/Cyphertext pair we can completely break CC. CC cyclically
+permutes `A_i` to` A_j`, so for any cyclic permutation `a_i = a_(j+c)` implies `A_i = A_(j+c)`, where the shift `c` is `i-j`.
 In other words, finding the mapping of a single character of our choice gives us the decryption key to the CC cypher.
 
 If we have access to a handful of cyphertexts of English-language plain-texts we can again use the non-uniform distribution
@@ -49,12 +58,12 @@ of characters in CC cyphertexts to out advantage. The most common character in W
 character in the cyphertexts must be the encrypted space-mark. After finding the shift between the empty space and its image it is
 trivial to decrypt any future cyphertexts using that shift. [2]
 
-```js
+```
 2DBTQHSX^FHUDR^V@X^SN^BNMROHQ@BXl^3GD^LHFGSX^FNCR^CDEDMC^SGDD_
 Security gives way to conspiracy. The mighty gods defend thee!
 ```
 
-CC is now completely broken.
+It only took approximately twenty short cypher texts per key to break CC.
 
 [1] A less fun attack would be to compare the cyphertexts of the plaintexts {'a', 'aa', ...} to
 those of {'ab', 'aba', ...}, which be easily detectable with 100% advantage.
