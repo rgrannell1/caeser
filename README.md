@@ -40,10 +40,12 @@ insecure, but there are several others that are fun to exploit.
 
 ### Decrypting the Message
 
-By finding the pre-image and image of any character in any plaintext/ciphertext pair we can completely break CC. This is
-because CC cyclically permutes `A_i` to` A_j`, and for any cyclic permutation `a_i = a_(j+c)` implies A_i = A_(j+c), and
-the shift `c` is `i-j`. In other words, finding the mapping of a single character of our choice gives us the decryption key
-to the CC cypher.
+By finding the pre-image and image of any character in any plaintext/Cyphertext pair we can completely break CC; CC cyclically
+permutes `A_i` to` A_j`, and for any cyclic permutation `a_i = a_(j+c)` implies `A_i = A_(j+c)`, and the shift `c` is `i-j`.
+In other words, finding the mapping of a single character of our choice gives us the decryption key to the CC cypher.
+
+If we have access to a large number of cyphertexts of English-language plain-texts we can again use the non-uniform distribution
+of characters in CC cyphertexts to out advantage. Lowercase 'e' is the most common letter in English, so for
 
 ```js
 

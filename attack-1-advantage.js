@@ -1,6 +1,14 @@
 #!/usr/bin/env node
 
-const ascii      = require('./data/ascii')
+const ascii                 = require('./data/ascii')
+
+const freqOf                = require('./js/flotsam').freqOf
+const log2                  = require('./js/flotsam').log2
+
+const yieldPlainText        = require('./js/flotsam').yieldPlainText
+const yieldRandomText       = require('./js/flotsam').yieldRandomText
+const yieldCypherText       = require('./js/flotsam').yieldCypherText
+const yieldRandomCypherText = require('./js/flotsam').yieldRandomCypherText
 
 const fs    = require('fs')
 
@@ -16,13 +24,6 @@ const letterFreqs = JSON
 	.parse(
 		fs.readFileSync('./data/letter-frequencies.json', {
 			encoding: 'UTF-8'
-		})
-	)
-
-const plainTexts = JSON
-	.parse(
-		fs.readFileSync('./data/plain-texts.json', {
-			encoding: 'ascii'
 		})
 	)
 
@@ -49,72 +50,6 @@ const asciiFreqs = ( function () {
 
 
 
-
-
-
-
-const yieldPlainText  = function () {
-	return plainTexts[Math.floor(Math.random() * plainTexts.length)]
-}
-
-const yieldRandomText = function () {
-
-	const len = yieldPlainText().length
-
-	var out = ''
-	for (var ith = 0; ith < len; ith++) {
-		out += ascii[Math.floor(Math.random() * ascii.length)]
-	}
-	return out
-}
-
-const yieldCipherText = function (shift) {
-	return asciiEncrypt(yieldPlainText(), shift)
-}
-
-const yieldRandomCipherText = function (shift) {
-	return asciiEncrypt(yieldRandomText(), shift)
-}
-
-
-
-
-const freqOf = function (str) {
-
-	if (toString.call(str) === '[object String]') {
-		str = str.split('')
-	}
-
-	const counts = ascii
-		.split('')
-		.map(function (toTabulate) {
-			return str
-				.filter(function (char) {
-					return char === toTabulate
-				})
-				.length
-		})
-
-	const total = counts.reduce(function (a, b) {return a + b})
-
-	return counts.map(function (count) {
-		return count / total
-	})
-}
-
-
-
-
-
-const log2 = function (num) {
-	return Math.log(num) / Math.LN10
-}
-
-
-
-
-
-
 const shannonEntropy = function (freqs) {
 	return freqs
 		.filter(function (freq) {
@@ -136,8 +71,8 @@ const advantage = function (iters, oracles) {
 	var whichUsed   = []
 
 	const emitters = [
-		{which: true,  emit: yieldCipherText},
-		{which: false, emit: yieldRandomCipherText}
+		{which: true,  emit: yieldCypherText},
+		{which: false, emit: yieldRandomCypherText}
 	]
 
 	for (var ith = 0; ith < iters; ith++) {
