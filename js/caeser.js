@@ -1,5 +1,5 @@
 
-const ascii = require('./ascii')
+const ascii = require('../data/ascii')
 
 
 
