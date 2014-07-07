@@ -1,5 +1,6 @@
 #!/usr/bin/Rscript
 
+require(rjson)
 require(devtools)
 
 install_github('rgrannell1/kiwi', ref = 'v0.30.0')
@@ -9,24 +10,6 @@ require(kiwi)
 OUTDIR <- '/home/ryan/Code/caeser.js/data/letter-frequencies.json'
 
 
-
-
-asJSON <- freqs_ := {
-	# a very limited json writing function.
-
-	wrap <- (wrapper : str) := {
-		xFromChars_(wrapper, str, wrapper)
-	}
-
-	freqs_ $
-	xMap(pair := {
-		xFromChars_('    ', wrap('\\"', xFirstOf(pair)), ': ',xSecondOf(paste(pair)) )
-	}) $
-	xReduce(xImplode_(',\n')) $
-	x_Tap(body := {
-		xFromChars_('{\n', body, '\n}\n')
-	})
-}
 
 
 
@@ -54,11 +37,12 @@ total_count    <- x_(letter_count_) $ xMap(xAt(2)) $ x_Reduce(`+`)
 letter_frequency <- letter_count_ $ xMap(pair_ := {
 	pair_ $ x_SecondAs(
 		xSecondOf(pair) / total_count)
-})
+}) $
+x_ZipKeys()
 
 
 
 
 message('writing json...')
 
-xWrite(OUTDIR, asJSON(letter_frequency))
+xWrite(OUTDIR, toJSON(letter_frequency))

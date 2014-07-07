@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 
 const ascii = require('../data/ascii')
 
