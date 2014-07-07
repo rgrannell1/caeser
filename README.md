@@ -4,12 +4,12 @@ Caeser
 
 ### Description
 
-Caeser's Cypher is a simple single-letter substitution cypher. The cypher maps each letter in the domain alphabet A_i
-onto a letter in a cyclically permuted codomain alphabet A_j, where i, j are indices of A. Since the codomain A_j is a
-permutation of A_i the ordering of characters is cyclically preserved, and the frequency of each element a_i  will give
-the frequency of the element a_j.
+Caeser's Cypher (CC) is a simple single-letter substitution cypher. The cypher maps each letter in the domain alphabet `A_i`
+onto a letter in a cyclically permuted codomain alphabet `A_j`, where `i`, `j` are indices of `A`. Since the codomain `A_j` is a
+cylic-permutation of `A_i`, the ordering of characters is cyclically preserved, and the frequency of each element `a_i`  will give
+the frequency of the element `a_j`.
 
-These properties make caeser's cypher very easy to detect and reverse.
+These properties make CC very easy to detect and reverse.
 
 ### Breaking Cyphertext-indistinguishability
 
@@ -18,8 +18,10 @@ onto non-uniform character output distributions. This means that biases towards 
 cyphertexts of the caeser cypher. All spoken languages have biases towards certain letters; in English, vowels are common and
 letters near the end of the alphabet are scarcely used.
 
-One simple attack uses the Shannon Entropy of a cyphertext to capture the information content of a cyphertext, based on the
+One simple attack uses the Shannon entropy of a cyphertext to capture the information content of a cyphertext, based on the
 assumption that the information content of a random string will differ from that of an English sentence to be reliably detected.
+In this way the cyphertext of an English sentence should be distinguisable from the cyphertext of a random string, which
+violates Cyphertext-indistinguishability. [1]
 
 ```js
 // attack-1-advantage.js
@@ -31,9 +33,22 @@ assumption that the information content of a random string will differ from that
 }
 ```
 
-~30,000 plaintext matching sentences from War & Peace (a suitably large book) were encrypted with Caeser's cypher, as were a
+~30,000 plaintext matching sentences from War & Peace (a suitably large book) were encrypted with CC, as were a
 roughly equal number of random ascii-strings. Using genetic algorithm to approximate what range of entropies a non-random
-cyphertext holds, an attacker can break semantic security with roughly ~90% advantage. This failure alone is enough to make Caeser's
-cypher insecure, but there are several others that are fun to exploit.
+cyphertext holds, an attacker can break semantic security with roughly ~90% advantage. This failure alone is enough to make CC
+insecure, but there are several others that are fun to exploit.
 
+### Decrypting the Message
+
+By finding the pre-image and image of any character in any plaintext/ciphertext pair we can completely break CC. This is
+because CC cyclically permutes `A_i` to` A_j`, and for any cyclic permutation `a_i = a_(j+c)` implies A_i = A_(j+c), and
+the shift `c` is `i-j`. In other words, finding the mapping of a single character of our choice gives us the decryption key
+to the CC cypher.
+
+```js
+
+```
+
+[1] A less fun attack would be to compare the cyphertexts of the plaintexts {'a', 'aa', ...} to
+those of {'ab', 'aba', ...}, which be easily detectable with 100% advantage.
 

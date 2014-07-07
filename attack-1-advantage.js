@@ -184,7 +184,7 @@ const oracles = {
 		return cypherTexts.map(function (_) {return false})
 	},
 
-	dumn: function (cypherTexts) {
+	naive: function (cypherTexts) {
 		/*
 			just guesses randomly expected value of 1/2, plus or minus some noise.
 		*/
