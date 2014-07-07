@@ -74,77 +74,79 @@ const asciiFreqs = ( function () {
 
 
 
-const decryptCipher = function (yieldCypherText, iters) {
+const decryptCipher = function (cypherTexts) {
 
-	const chooseImage = function (iters) {
+	const cypherFreqs = ascii
+		.split('')
+		.map(function (toTabulate) {
 
-		var cypherTexts = []
+			const count = cypherTexts
+				.join('')
+				.split('')
+				.filter(function (char) {
+					return char === toTabulate
+				})
+				.length
 
-		for (var ith = 0; ith < iters; ith++) {
-			cypherTexts.push(yieldCypherText)
-		}
+			return[toTabulate, count]
+		})
 
-		const cypherFreqs = ascii
-			.split('')
-			.map(function (toTabulate) {
+	const image = cypherFreqs.
+		reduce(function (acc, current) {
+			return current[1] > acc[1]?
+				current:
+				acc
+		}, ['', -Infinity])
 
-				const count = cypherTexts
-					.join('')
-					.split('')
-					.filter(function (char) {
-						return char === toTabulate
-					})
-					.length
 
-				return[toTabulate, count]
-			})
+	const preimage = Object.keys(asciiFreqs)
+		.reduce(function (acc, current) {
+			return asciiFreqs[current] > acc[1]?
+				[current, asciiFreqs[current]]:
+				acc
+		}, ['', -Infinity])[0]
 
-		return cypherFreqs.
-			reduce(function (acc, current) {
-				return current[1] > acc[1]?
-					current:
-					acc
-			}, ['', -Infinity])
+	const ith = ascii.indexOf(preimage)
+	const jth = ascii.indexOf(image[0])
+
+	return ith - jth
+
+}
+
+
+
+
+
+
+
+
+
+
+
+crackCC = function (E, cypherTexts) {
+	return function (cypherText) {
+		return asciiDecrypt(cypherText, -decryptCipher(cypherTexts))
+	}
+}
+
+
+
+
+
+const E = (function () {
+
+	const k = Math.floor(Math.random() * 10000000)
+
+	return function (str) {
+		return asciiEncrypt(str, k)
 	}
 
-	const getShift = function (image) {
+} )()
 
-		const preimage = Object.keys(asciiFreqs)
-			.reduce(function (acc, current) {
-				return asciiFreqs[current] > acc[1]?
-					[current, asciiFreqs[current]]:
-					acc
-			}, ['', -Infinity])[0]
+const secretMessage = E('Security gives way to conspiracy. The mighty gods defend thee!')
+console.log(secretMessage)
 
-		const ith = ascii.indexOf(preimage)
-		const jth = ascii.indexOf(image[0])
+D = crackCC(E, plainTexts.map(E).splice(0, 18))
 
-		return ith - jth
-	}
-
-	return getShift(chooseImage(iters))
-}
-
-
-
-
-
-
-const E = function (shift) {
-	return yieldCypherText(shift)
-}
-
-const D = function (cypherText) {
-
-	return asciiDecrypt(
-		cypherText,
-		console.log(decryptCipher(E, 100))
-	)
-}
-
-const crack = function (shift) {
-	return D(E(shift))
-}
-
-
-crack(100)
+plainText = D(secretMessage)
+console.log(plainText)

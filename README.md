@@ -44,13 +44,19 @@ By finding the pre-image and image of any character in any plaintext/Cyphertext 
 permutes `A_i` to` A_j`, and for any cyclic permutation `a_i = a_(j+c)` implies `A_i = A_(j+c)`, and the shift `c` is `i-j`.
 In other words, finding the mapping of a single character of our choice gives us the decryption key to the CC cypher.
 
-If we have access to a large number of cyphertexts of English-language plain-texts we can again use the non-uniform distribution
-of characters in CC cyphertexts to out advantage. Lowercase 'e' is the most common letter in English, so for
+If we have access to a handful of cyphertexts of English-language plain-texts we can again use the non-uniform distribution
+of characters in CC cyphertexts to out advantage. The most common character in War & Peace is an empty space, so the most common
+character in the cyphertexts must be the encrypted space-mark. After finding the shift between the empty space and its image it is
+trivial to decrypt any future cyphertexts using that shift. [2]
 
 ```js
-
+2DBTQHSX^FHUDR^V@X^SN^BNMROHQ@BXl^3GD^LHFGSX^FNCR^CDEDMC^SGDD_
+Security gives way to conspiracy. The mighty gods defend thee!
 ```
+
+CC is now completely broken.
 
 [1] A less fun attack would be to compare the cyphertexts of the plaintexts {'a', 'aa', ...} to
 those of {'ab', 'aba', ...}, which be easily detectable with 100% advantage.
 
+[2] Again, a less fun attack would be to brute-force every possible shift for a given alphabet.
