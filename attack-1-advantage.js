@@ -186,8 +186,7 @@ const oracles = {
 
 	dumn: function (cypherTexts) {
 		/*
-			dumb just guesses randomly.
-			expected value of 1/2
+			just guesses randomly expected value of 1/2, plus or minus some noise.
 		*/
 
 		return cypherTexts.map(function (text) {
@@ -196,21 +195,29 @@ const oracles = {
 
 	},
 
-	distribution: ( function () {
+	characterEntropy: ( function () {
 		/*
 			get the shannon entropy of the cypher-texts;
 
 			there should be uniform character distribution in
 			the random plaintexts, but not the meaningful plaintexts.
 
-			Use brute-force search to find ideal upper and lower bounds on entropy.
+			Use genetic algorithm to find ideal upper and lower bounds on entropy.
 		*/
 
-		var _testBounds = []
+		const repeat = function (num, val) {
+			var out = []
+			for (var ith = 0; ith < num; ith++) {
+				out.push(val)
+			}
+			return out
+		}
 
-		for (var ith = 0; ith < 20; ith++) {
-			for (var jth = 0; jth < 20; jth++) {
-				_testBounds.push([ith / 4, jth / 4])
+		const mutate = function(ith) {
+			return function (pair) {
+				// slowly decreases with ith.
+				const factor = 15 * (ith / Math.pow(ith, 1.25))
+				return [pair[0] + Math.random() / 15, pair[1] + Math.random() / 15]
 			}
 		}
 
@@ -224,17 +231,42 @@ const oracles = {
 			}
 		}
 
-		const adversaries   = _testBounds.map(makeAdversary)
-		const advantages    = advantage(300, adversaries)
+		var best    = [0.5, 1.5]
 
-		const bestAdvantage = Object.keys(advantages)
-			.reduce(function (acc, current) {
-				return advantages[current] > acc[1]?
-					[current, advantages[current]]:
-					acc
-			}, ['will be dropped', -Infinity])
+		// maintain previous best approximations, to help factor out random error.
 
-		return adversaries[bestAdvantage[0]]
+		var allBest = [best]
+
+		for (var ith = 0; ith < 50; ith++) {
+
+			allBest  = allBest.concat([best])
+
+			if (ith === 29) {
+				var population = allBest
+			} else {
+				var population =
+					repeat(30, best)
+					.map(mutate(ith))
+					.concat([best])
+			}
+
+			var adversaries   = population.map(makeAdversary)
+			var advantages    = advantage(600, adversaries)
+
+			var bestAdvantage =
+				Object.keys(advantages)
+				.reduce(function (acc, current) {
+					return advantages[current] > acc[1]?
+						[current, advantages[current]]:
+						acc
+				}, ['will be dropped', -Infinity])
+
+			var best = population[bestAdvantage[0]]
+			console.log(bestAdvantage[1])
+		}
+
+		console.log('optimal solution was ' + JSON.stringify(best))
+		return makeAdversary(best)
 
 	} )()
 
