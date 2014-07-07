@@ -122,6 +122,13 @@ const shannonEntropy = function (freqs) {
 
 
 const oracles = {
+	optimist: function (cypherTexts) {
+		return cypherTexts.map(function (_) {return true})
+	},
+	pessamist: function (cypherTexts) {
+		return cypherTexts.map(function (_) {return false})
+	},
+
 	dumn: function (cypherTexts) {
 		/*
 			dumb just guesses randomly.
@@ -133,17 +140,20 @@ const oracles = {
 		})
 
 	},
+
 	distribution: function (cypherTexts) {
 		/*
-			get the frequencies of each character in the cypher-texts.
+			get the shannon entropy of the cypher-texts;
 
+			there should be uniform character distribution in
+			the random plaintexts, but not the meaningful plaintexts.
 
 		*/
 
 		return cypherTexts.map(function (text) {
 
 			const entropy = shannonEntropy(freqOf(text))
-			return entropy < 1.5
+			return entropy < 1.35 || entropy < 1.1
 		})
 
 	}
@@ -184,10 +194,15 @@ const advantage = function (iters, oracles) {
 				})
 				.reduce(function (a, b) {return a + b})
 
-			return (score / iters) * 100
+			return [key, (score / iters) * 100]
 		})
 
 	console.log(percentCorrect)
 }
+
+
+
+
+
 
 advantage(10000, oracles)
