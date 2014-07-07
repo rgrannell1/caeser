@@ -28,9 +28,8 @@ cyphertexts of the caeser cypher. All spoken languages have biases towards certa
 letters near the end of the alphabet are scarcely used.
 
 One simple attack uses the Shannon entropy of a cyphertext to capture the information content of a cyphertext, based on the
-assumption that the information content of a random string will differ from that of an English sentence to be reliably detected.
-In this way the cyphertext of an English sentence should be distinguisable from the cyphertext of a random string, which
-violates Cyphertext-indistinguishability. [1]
+assumption that the entropy will differ between random and English strings. This should enable classification of cyphertexts based
+on their plaintext content, which violates Cyphertext-indistinguishability. [1]
 
 ```js
 // attack-1-advantage.js
@@ -42,21 +41,21 @@ violates Cyphertext-indistinguishability. [1]
 }
 ```
 
-~30,000 plaintext matching sentences from War & Peace (a suitably large book) were encrypted with CC, as were a
-roughly equal number of random ascii-strings. Using genetic algorithm to approximate what range of entropies a non-random
-cyphertext holds, an attacker can break semantic security with roughly ~90% advantage. This failure alone is enough to make CC
-insecure, but there are several others that are fun to exploit.
+~30,000 plaintext matching sentences from "War & Peace" (a suitably large book) were encrypted with CC, as were a
+roughly equal number of random ascii-strings. Using a genetic algorithm to approximate the range of entropies a non-random
+cyphertext holds an attacker can break semantic security with roughly ~90% advantage. This alone is enough to make CC
+insecure, but there are several others fun exploits against CC.
 
 ### Decrypting the Message
 
-By finding the pre-image and image of any character in any plaintext/Cyphertext pair we can completely break CC. CC cyclically
+By finding the pre-image and image of any character in any plaintext:cyphertext pair we can completely break CC. CC cyclically
 permutes `A_i` to` A_j`, so for any cyclic permutation `a_i = a_(j+c)` implies `A_i = A_(j+c)`, where the shift `c` is `i-j`.
 In other words, finding the mapping of a single character of our choice gives us the decryption key to the CC cypher.
 
-If we have access to a handful of cyphertexts of English-language plain-texts we can again use the non-uniform distribution
-of characters in CC cyphertexts to out advantage. The most common character in War & Peace is an empty space, so the most common
-character in the cyphertexts must be the encrypted space-mark. After finding the shift between the empty space and its image it is
-trivial to decrypt any future cyphertexts using that shift. [2]
+If we have access to a handful of cyphertexts from English-language plaintexts we can again use the non-uniform distribution
+of characters in CC cyphertexts to out advantage. The most common character in "War & Peace" is an empty space, so the most common
+character in the cyphertexts must be the encrypted space character. After finding the shift between the empty space and its image it is
+trivial to decrypt the other characters, and any future cyphertexts using that shift. [2]
 
 ```
 2DBTQHSX^FHUDR^V@X^SN^BNMROHQ@BXl^3GD^LHFGSX^FNCR^CDEDMC^SGDD_
